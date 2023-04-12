@@ -18,6 +18,35 @@ class MemberController(
         val createMember = memberService.createMember(memberRequest.name, memberRequest.email)
         return CreateMemberResponse.of(createMember)
     }
+
+    @PostMapping("/update")
+    fun updateMember(@RequestBody memberRequest: UpdateMemberRequest): UpdateMemberResponse {
+        val updateMember = memberService.update(memberRequest.id, memberRequest.name)
+        return UpdateMemberResponse.of(updateMember)
+    }
+}
+
+data class UpdateMemberRequest(
+    val id: Long,
+    val name: String,
+)
+
+class UpdateMemberResponse(
+    val id: Long,
+    val name: String,
+    val email: String,
+    val updatedAt: String,
+) {
+    companion object {
+        fun of(updateMember: Member): UpdateMemberResponse {
+            return UpdateMemberResponse(
+                id = updateMember.id,
+                name = updateMember.name,
+                email = updateMember.email,
+                updatedAt = updateMember.updatedAt.toString(),
+            )
+        }
+    }
 }
 
 data class CreateMemberRequest(

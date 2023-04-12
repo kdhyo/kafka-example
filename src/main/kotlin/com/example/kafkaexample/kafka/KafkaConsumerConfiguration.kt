@@ -1,6 +1,7 @@
 package com.example.kafkaexample.kafka
 
 import com.example.kafkaexample.kafka.model.CreatedMember
+import com.example.kafkaexample.kafka.model.UpdatedMember
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -15,17 +16,35 @@ import org.springframework.kafka.support.serializer.JsonDeserializer
 class KafkaConsumerConfiguration {
 
     @Bean
-    fun kafkaListenerContainerFactory(): KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, CreatedMember>> {
+    fun createdMemberKafkaListenerContainerFactory(): KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, CreatedMember>> {
         val factory = ConcurrentKafkaListenerContainerFactory<String, CreatedMember>()
             .apply {
-                consumerFactory = consumerFactory()
+                consumerFactory = createdMemberConsumerFactory()
             }
         return factory
     }
 
     @Bean
-    fun consumerFactory(): ConsumerFactory<String, CreatedMember> {
+    fun updatedMemberKafkaListenerContainerFactory(): KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, UpdatedMember>> {
+        val factory = ConcurrentKafkaListenerContainerFactory<String, UpdatedMember>()
+            .apply {
+                consumerFactory = updatedMemberConsumerFactory()
+            }
+        return factory
+    }
+
+    @Bean
+    fun createdMemberConsumerFactory(): ConsumerFactory<String, CreatedMember> {
         val deserializer = JsonDeserializer(CreatedMember::class.java).apply {
+            addTrustedPackages("*")
+            setUseTypeHeaders(false)
+        }
+        return DefaultKafkaConsumerFactory(consumerConfigs(), StringDeserializer(), deserializer)
+    }
+
+    @Bean
+    fun updatedMemberConsumerFactory(): ConsumerFactory<String, UpdatedMember> {
+        val deserializer = JsonDeserializer(UpdatedMember::class.java).apply {
             addTrustedPackages("*")
             setUseTypeHeaders(false)
         }
